@@ -1,3 +1,5 @@
 venv/
 pii-masking.pdf
 .env
+query_db.py
+send_message.py

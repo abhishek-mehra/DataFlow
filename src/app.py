@@ -46,3 +46,25 @@ def process_messages(messages):
         }
         processed_records.append(processed_record)
     return processed_records
+
+
+def save_records_to_db(records):
+    """ Save processed records to PostgreSQL database """
+    connection = connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT)
+    cursor = connection.cursor()
+    psycopg2.extras.execute_batch(cursor, """
+    INSERT INTO user_logins (user_id, device_type, masked_ip, masked_device_id, locale, app_version, create_date)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """, [(record['user_id'], record['device_type'], record['masked_ip'], record['masked_device_id'], record['locale'], record['app_version'], record['create_date']) for record in records])
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def main():
+    messages = fetch_messages()
+    if messages:
+        records = process_messages(messages)
+        save_records_to_db(records)
+
+if __name__ == '__main__':
+    main()

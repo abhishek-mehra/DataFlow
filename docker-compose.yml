@@ -4,25 +4,25 @@ services:
   app:
     build: .
     ports:
-      - "5000:80"
+      - "5001:80"
     depends_on:
       - db
       - localstack
     environment:
       DB_HOST: db
       DB_PORT: 5432
-      DB_USER: user
-      DB_PASSWORD: password
-      DB_NAME: userdb
-      AWS_REGION: us-east-1
-      SQS_QUEUE_URL: http://localstack:4566/000000000000/dataflow-queue
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      AWS_REGION: ${AWS_REGION}
+      SQS_QUEUE_URL: ${SQS_QUEUE_URL}
 
   db:
     image: postgres
     environment:
-      POSTGRES_DB: userdb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -34,11 +34,10 @@ services:
       - "4566:4566"
     environment:
       SERVICES: sqs
-      DEFAULT_REGION: us-east-1
+      DEFAULT_REGION: ${AWS_REGION}
     volumes:
       - ./localstack:/docker-entrypoint-initaws.d
 
 volumes:
   pgdata:
   localstack_data:
-
